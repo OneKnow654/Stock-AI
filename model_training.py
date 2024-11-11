@@ -20,9 +20,20 @@ def prepare_lstm_data(stock_data, time_steps=60):
     X, y = np.array(X), np.array(y)
     return X, y, scaler
 
+#time step loader 
+def time_step_load(timeframe):
+    if timeframe == 'short-term':
+        return 60
+    elif timeframe == 'mid-term':
+        return 90 # or 60
+    elif timeframe == 'long-term':
+        return 120  # or 180
+    else :
+        return 60  #default value
+
 def train_and_save_model(stock_data, timeframe):
     # Prepare LSTM-compatible data
-    X, y, scaler = prepare_lstm_data(stock_data)
+    X, y, scaler = prepare_lstm_data(stock_data,time_step_load(timeframe))
     
     # Define the LSTM model
     model = Sequential()
@@ -63,6 +74,8 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     mape = np.mean(np.abs((y_recent - y_pred_recent) / y_recent)) * 100
 
     return predicted_price, mse, mae, mape
+
+
 
 def load_model_and_scaler(timeframe, stock_data=None):
     model_path = f'models/{timeframe}_lstm_model.h5'

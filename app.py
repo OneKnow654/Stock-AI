@@ -4,6 +4,7 @@ from indicators import calculate_technical_indicators
 #from model_training import train_and_save_model, load_model, predict_closing_price_with_accuracy
 from model_training import train_and_save_model, load_model_and_scaler, predict_closing_price_with_accuracy
 from sentiment_analysis import *
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -26,6 +27,7 @@ def get_data():
 # Endpoint to calculate technical indicators
 @app.route('/indicators', methods=['POST'])
 def indicators():
+
     data = request.get_json()
     stock_data = pd.DataFrame(data)
     indicators_data = calculate_technical_indicators(stock_data)
@@ -97,11 +99,11 @@ def predict():
     predicted_price, mse, mae, mape = predict_closing_price_with_accuracy(model, stock_data_with_indicators, scaler)
 
     return jsonify({
-        "predicted_closing_price": predicted_price,
+        "predicted_closing_price": round(predicted_price,2),
         "sentiment_score":None,
-        "mean_squared_error": mse,
-        "mean_absolute_error": mae,
-        "mean_absolute_percentage_error": mape
+        "mean_squared_error": round(mse,2),
+        "mean_absolute_error": round(mae,2),
+        "mean_absolute_percentage_error": round(mape,2)
     })
 
 

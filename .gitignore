@@ -16,3 +16,4 @@ Thumbs.db
 build/
 dist/
 Old_backup/
+myenv/
