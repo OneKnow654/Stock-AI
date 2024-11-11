@@ -1,0 +1,173 @@
+import numpy as np
+import pandas as pd
+import os   
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.callbacks import EarlyStopping
+import joblib
+
+def prepare_lstm_data(stock_data, time_steps=60):
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(stock_data[['Close', 'MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']])
+
+    X, y = [], []
+    for i in range(time_steps, len(scaled_data)):
+        X.append(scaled_data[i-time_steps:i, :])  # Collect 'time_steps' data points before each target
+        y.append(scaled_data[i, 0])  # Closing price is the target
+
+    X, y = np.array(X), np.array(y)
+    return X, y, scaler
+
+def train_and_save_model(stock_data, timeframe):
+    # Prepare LSTM-compatible data
+    X, y, scaler = prepare_lstm_data(stock_data)
+    
+    # Define the LSTM model
+    model = Sequential()
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X.shape[1], X.shape[2])))
+    model.add(LSTM(units=50))
+    model.add(Dense(1))  # Output layer
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    # Training the model with early stopping
+    early_stopping = EarlyStopping(monitor='loss', patience=10, restore_best_weights=True)
+    model.fit(X, y, epochs=50, batch_size=32, callbacks=[early_stopping], verbose=1)
+
+    # Save the model and scaler for later use
+    model.save(f'models/{timeframe}_lstm_model.h5')
+    joblib.dump(scaler, f'models/{timeframe}_scaler.pkl')
+    print(f"LSTM model for {timeframe} saved successfully.")
+
+def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60, days=5):
+    # Prepare data for prediction: Scale and reshape
+    recent_data = stock_data[['Close', 'MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']].values
+    scaled_recent_data = scaler.transform(recent_data)
+    X_input = scaled_recent_data[-time_steps:]
+    X_input = np.reshape(X_input, (1, X_input.shape[0], X_input.shape[1]))
+
+    # Predict closing price and inverse transform
+    predicted_scaled = model.predict(X_input)
+    predicted_price = scaler.inverse_transform([[predicted_scaled[0][0], 0, 0, 0, 0, 0]])[0][0]
+
+    # Calculate accuracy metrics on recent data
+    X_recent, y_recent, _ = prepare_lstm_data(stock_data.tail(days + time_steps), time_steps)
+    y_pred_recent = model.predict(X_recent)
+    y_pred_recent = scaler.inverse_transform(np.concatenate([y_pred_recent, np.zeros((y_pred_recent.shape[0], 5))], axis=1))[:, 0]
+    y_recent = scaler.inverse_transform(np.concatenate([y_recent.reshape(-1, 1), np.zeros((y_recent.shape[0], 5))], axis=1))[:, 0]
+
+    mse = mean_squared_error(y_recent, y_pred_recent)
+    mae = mean_absolute_error(y_recent, y_pred_recent)
+    mape = np.mean(np.abs((y_recent - y_pred_recent) / y_recent)) * 100
+
+    return predicted_price, mse, mae, mape
+
+def load_model_and_scaler(timeframe, stock_data=None):
+    model_path = f'models/{timeframe}_lstm_model.h5'
+    scaler_path = f'models/{timeframe}_scaler.pkl'
+
+    # Check if both model and scaler exist; if not, train the model
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        if stock_data is None:
+            raise ValueError("Stock data is required to train the model")
+        print(f"Training {timeframe} LSTM model because model file was not found...")
+        train_and_save_model(stock_data, timeframe)
+
+    # Load the trained model and scaler
+    model = load_model(model_path)
+    scaler = joblib.load(scaler_path)
+    return model, scaler
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import pandas as pd
+# import numpy as np
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import mean_squared_error, mean_absolute_error
+# import joblib  # For saving/loading models
+
+# def train_and_save_model(stock_data, timeframe):
+#     # Prepare features and target (closing price)
+#     X = stock_data[['MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']]
+#     y = stock_data['Close']
+
+#     # Split data
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#     # Train model
+#     model = RandomForestRegressor(n_estimators=500, max_depth=15, min_samples_split=10, min_samples_leaf=4, max_features='sqrt', random_state=42)
+#     model.fit(X_train, y_train)
+
+#     # Evaluate model
+#     predictions = model.predict(X_test)
+#     mse = mean_squared_error(y_test, predictions)
+#     print(f"{timeframe} Model Mean Squared Error: {mse}")
+
+#     # Save model
+#     filename = f"models/{timeframe}_model.pkl"
+#     joblib.dump(model, filename)
+#     print(f"{timeframe} model saved as {filename}")
+
+# def load_model(timeframe):
+#     filename = f"models/{timeframe}_model.pkl"
+#     try:
+#         model = joblib.load(filename)
+#         return model
+#     except FileNotFoundError:
+#         print(f"Model file {filename} not found.")
+#         return None
+    
+# # def predict_closing_price(model, stock_data):
+# #     # Prepare input for prediction (last row of data with indicators)
+# #     last_row = stock_data.iloc[-1][['MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']].values.reshape(1, -1)
+# #     predicted_price = model.predict(last_row)
+# #     return predicted_price[0]
+
+# def predict_closing_price_with_accuracy(model, stock_data, days=5):
+#     # Prepare input for prediction (last row of data with indicators)
+#     last_row = stock_data.iloc[-1][['MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']].values.reshape(1, -1)
+#     predicted_price = model.predict(last_row)[0]
+    
+#     # Calculate accuracy on the last 'days' days
+#     recent_data = stock_data.tail(days)
+#     X_recent = recent_data[['MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']]
+#     y_recent = recent_data['Close']
+    
+#     y_pred_recent = model.predict(X_recent)
+#     mse = mean_squared_error(y_recent, y_pred_recent)
+#     mae = mean_absolute_error(y_recent, y_pred_recent)
+    
+#     # Calculate Mean Absolute Percentage Error (MAPE)
+#     mape = np.mean(np.abs((y_recent - y_pred_recent) / y_recent)) * 100
+
+#     return predicted_price, mse, mae, mape
+
+
+
+
+# ------------------------------------------------------
+
+
+
