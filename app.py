@@ -89,7 +89,7 @@ def predict():
     # stock_data_with_indicators['Sentiment'] = sentiment_score
 
     # Load or train the LSTM model and scaler
-    model, scaler = load_model_and_scaler(timeframe,stock_data_with_indicators)
+    model, scaler = load_model_and_scaler(ticker,timeframe,stock_data_with_indicators)
     if model is None:
         print(f"Training {timeframe} LSTM model...")
         train_and_save_model(stock_data_with_indicators, timeframe)
@@ -103,7 +103,7 @@ def predict():
         "sentiment_score":None,
         "mean_squared_error": round(mse,2),
         "mean_absolute_error": round(mae,2),
-        "mean_absolute_percentage_error": round(mape,2)
+        "mean_absolute_percentage_error": round(mape,3)
     })
 
 

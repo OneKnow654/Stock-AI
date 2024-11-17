@@ -31,26 +31,23 @@ def time_step_load(timeframe):
     else :
         return 60  #default value
 
-def train_and_save_model(stock_data, timeframe):
-    # Prepare LSTM-compatible data
-    X, y, scaler = prepare_lstm_data(stock_data,time_step_load(timeframe))
+def train_and_save_model(stock_data, ticker, timeframe):
+    X, y, scaler = prepare_lstm_data(stock_data)
     
-    # Define the LSTM model
+    # Define and train the LSTM model (same as before)
     model = Sequential()
     model.add(LSTM(units=50, return_sequences=True, input_shape=(X.shape[1], X.shape[2])))
     model.add(LSTM(units=50))
-    model.add(Dense(1))  # Output layer
+    model.add(Dense(1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
+    model.fit(X, y, epochs=50, batch_size=32, verbose=1)
 
-    # Training the model with early stopping
-    early_stopping = EarlyStopping(monitor='loss', patience=10, restore_best_weights=True)
-    model.fit(X, y, epochs=50, batch_size=32, callbacks=[early_stopping], verbose=1)
+    # Save the model and scaler with stock-specific names
+    model.save(f'models/{ticker}_{timeframe}_lstm_model.h5')
+    joblib.dump(scaler, f'models/{ticker}_{timeframe}_scaler.pkl')
+    print(f"Model and scaler saved for {ticker} with {timeframe} timeframe.")
 
-    # Save the model and scaler for later use
-    model.save(f'models/{timeframe}_lstm_model.h5')
-    joblib.dump(scaler, f'models/{timeframe}_scaler.pkl')
-    print(f"LSTM model for {timeframe} saved successfully.")
 
 def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60, days=5):
     # Prepare data for prediction: Scale and reshape
@@ -76,23 +73,21 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     return predicted_price, mse, mae, mape
 
 
+def load_model_and_scaler(ticker, timeframe, stock_data=None):
+    model_path = f'models/{ticker}_{timeframe}_lstm_model.h5'
+    scaler_path = f'models/{ticker}_{timeframe}_scaler.pkl'
 
-def load_model_and_scaler(timeframe, stock_data=None):
-    model_path = f'models/{timeframe}_lstm_model.h5'
-    scaler_path = f'models/{timeframe}_scaler.pkl'
-
-    # Check if both model and scaler exist; if not, train the model
+    # Check if both model and scaler exist; if not, train a new model
     if not os.path.exists(model_path) or not os.path.exists(scaler_path):
         if stock_data is None:
             raise ValueError("Stock data is required to train the model")
-        print(f"Training {timeframe} LSTM model because model file was not found...")
-        train_and_save_model(stock_data, timeframe)
+        print(f"Training model for {ticker} as no saved model was found...")
+        train_and_save_model(stock_data, ticker, timeframe)
 
     # Load the trained model and scaler
     model = load_model(model_path)
     scaler = joblib.load(scaler_path)
     return model, scaler
-
 
 
 
