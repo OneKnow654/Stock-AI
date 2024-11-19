@@ -49,7 +49,7 @@ def train_and_save_model(stock_data, ticker, timeframe):
     print(f"Model and scaler saved for {ticker} with {timeframe} timeframe.")
 
 
-def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60, days=5):
+def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60, days=5,risk_percentage=0.05):
     # Prepare data for prediction: Scale and reshape
     recent_data = stock_data[['Close', 'MACD', 'RSI', 'Upper_Band', 'Middle_Band', 'Lower_Band']].values
     scaled_recent_data = scaler.transform(recent_data)
@@ -59,6 +59,9 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     # Predict closing price and inverse transform
     predicted_scaled = model.predict(X_input)
     predicted_price = scaler.inverse_transform([[predicted_scaled[0][0], 0, 0, 0, 0, 0]])[0][0]
+
+     # Calculate threshold price
+    threshold_price = predicted_price * (1 - risk_percentage)
 
     # Calculate accuracy metrics on recent data
     X_recent, y_recent, _ = prepare_lstm_data(stock_data.tail(days + time_steps), time_steps)
@@ -70,7 +73,7 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     mae = mean_absolute_error(y_recent, y_pred_recent)
     mape = np.mean(np.abs((y_recent - y_pred_recent) / y_recent)) * 100
 
-    return predicted_price, mse, mae, mape
+    return predicted_price, threshold_price,mse, mae, mape
 
 
 def load_model_and_scaler(ticker, timeframe, stock_data=None):

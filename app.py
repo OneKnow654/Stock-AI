@@ -76,6 +76,8 @@ def predict():
     ticker = data['ticker']
     timeframe = data['timeframe']  # Accept values like 'short-term', 'mid-term', 'long-term'
     start, end = data['start'], data['end']
+    risk_percentage = data.get('risk_percentage', 0.05)  # Default risk percentage is 5%
+
 
     # Fetch historical data and calculate indicators
     stock_data = fetch_historical_data(ticker, start, end)
@@ -96,11 +98,11 @@ def predict():
         model, scaler = load_model_and_scaler(timeframe)
 
     # Predict closing price and calculate accuracy
-    predicted_price, mse, mae, mape = predict_closing_price_with_accuracy(model, stock_data_with_indicators, scaler)
+    predicted_price, threshold_price,mse, mae, mape = predict_closing_price_with_accuracy(model, stock_data_with_indicators, scaler, risk_percentage=risk_percentage)
 
     return jsonify({
         "predicted_closing_price": round(predicted_price,2),
-        "sentiment_score":None,
+        "threshold_price": round(threshold_price,2),
         "mean_squared_error": round(mse,2),
         "mean_absolute_error": round(mae,2),
         "mean_absolute_percentage_error": round(mape,3)
