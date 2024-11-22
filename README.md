@@ -38,3 +38,4 @@ curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -
         "end": "2024-11-13",
         "timeframe": "short-term"
     }'
+

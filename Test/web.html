@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stock Data</title>
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Live Stock Data</h1>
+    <button onclick="subscribe('TATASTEEL.NS')">Subscribe to AAPL</button>
+    <button onclick="unsubscribe('TATASTEEL.NS')">Unsubscribe from AAPL</button>
+    <div id="stock-data"></div>
+
+    <script>
+        const socket = io('http://localhost:5000');
+
+        // Subscribe to live data
+        function subscribe(ticker) {
+            socket.emit('subscribe', { ticker: ticker, interval: 1 });
+        }
+
+        // Unsubscribe from live data
+        function unsubscribe(ticker) {
+            socket.emit('unsubscribe', { ticker: ticker });
+        }
+
+        // Handle live data updates
+        socket.on('live_data', (data) => {
+            const stockDataDiv = document.getElementById('stock-data');
+            stockDataDiv.innerHTML = `<h2>${data.ticker}</h2>
+                <p>Close: ${data.data.Close}</p>
+                <p>High: ${data.data.High}</p>
+                <p>Low: ${data.data.Low}</p>`;
+        });
+    </script>
+</body>
+</html>
