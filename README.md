@@ -36,14 +36,14 @@ Each timeframe captures different price movements and may benefit from different
 
 
 # Test area
-
+```bash
 curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d '{
         "ticker": "ADSL.NS",
         "start": "2024-07-01",
         "end": "2024-11-13",
         "timeframe": "short-term"
     }'
-
+```
 
 
 1. Dynamic Risk Percentage
@@ -52,7 +52,8 @@ Instead of using a fixed risk percentage, dynamically calculate it based on mark
 Implementation:
 Volatility-Based Risk: Use indicators like Average True Range (ATR) or standard deviation of recent prices to determine the risk percentage.
 Risk Percentage
-=
+
+
 ATR
 Current Price
 Risk Percentage= 
