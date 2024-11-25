@@ -39,3 +39,20 @@ curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -
         "timeframe": "short-term"
     }'
 
+
+
+1. Dynamic Risk Percentage
+Instead of using a fixed risk percentage, dynamically calculate it based on market conditions, stock volatility, or user preferences.
+
+Implementation:
+Volatility-Based Risk: Use indicators like Average True Range (ATR) or standard deviation of recent prices to determine the risk percentage.
+Risk Percentage
+=
+ATR
+Current Price
+Risk Percentage= 
+Current Price
+ATR
+​
+ 
+User-Defined Levels: Allow users to choose between low, medium, or high risk, and map these to predefined risk percentages (e.g., 2%, 5%, 10%).

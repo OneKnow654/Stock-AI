@@ -5,8 +5,11 @@ from indicators import calculate_technical_indicators
 from model_training import train_and_save_model, load_model_and_scaler, predict_closing_price_with_accuracy
 from sentiment_analysis import *
 import pandas as pd
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def home():
@@ -74,7 +77,7 @@ def indicators():
 def predict():
     data = request.get_json()
     ticker = data['ticker']
-    timeframe = data['timeframe']  # Accept values like 'short-term', 'mid-term', 'long-term'
+    timeframe = data['timeframe'].lower()  # Accept values like 'short-term', 'mid-term', 'long-term'
     start, end = data['start'], data['end']
     risk_percentage = data.get('risk_percentage', 0.05)  # Default risk percentage is 5%
 

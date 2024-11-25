@@ -1,12 +1,12 @@
 import numpy as np
-import pandas as pd
+import pandas as pd  # type: ignore
 import os   
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import LSTM, Dense
-from tensorflow.keras.callbacks import EarlyStopping
-import joblib
+from sklearn.metrics import mean_absolute_error, mean_squared_error  # type: ignore
+from sklearn.preprocessing import MinMaxScaler # type: ignore
+from tensorflow.keras.models import Sequential, load_model # type: ignore
+from tensorflow.keras.layers import LSTM, Dense # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping # type: ignore
+import joblib # type: ignore
 
 def prepare_lstm_data(stock_data, time_steps=60):
     scaler = MinMaxScaler(feature_range=(0, 1))
