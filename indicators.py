@@ -12,3 +12,4 @@ def calculate_risk_percentage(stock_data):
     atr = ta.ATR(stock_data['High'], stock_data['Low'], stock_data['Close'], timeperiod=14).iloc[-1]
     current_price = stock_data['Close'].iloc[-1]
     return atr / current_price  # Dynamic risk based on volatility
+    
