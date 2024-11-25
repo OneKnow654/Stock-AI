@@ -1,3 +1,8 @@
+| Note : Before run the code make sure u are run in virtual env 
+- how to create goto the bottom of this readme 
+
+---
+
 In stock price prediction, **short-term**, **mid-term**, and **long-term** refer to different time horizons over which predictions are made, and each has a specific range based on typical trading and investing strategies:
 
 ### 1. **Short-Term** (Days to 1 Week)
@@ -56,3 +61,44 @@ ATR
 ​
  
 User-Defined Levels: Allow users to choose between low, medium, or high risk, and map these to predefined risk percentages (e.g., 2%, 5%, 10%).
+
+
+
+
+
+### **1. Using `venv` (Python 3 built-in module):**
+#### **Step-by-Step:**
+1. **Navigate to your project folder:**
+   ```bash
+   cd /path/to/your/project
+   ```
+
+2. **Create a virtual environment:**
+   ```bash
+   python3 -m venv env_name
+   ```
+   Replace `env_name` with the desired name for your virtual environment (e.g., `venv`).
+
+3. **Activate the virtual environment:**
+   - **On macOS/Linux:**
+     ```bash
+     source env_name/bin/activate
+     ```
+   - **On Windows (Command Prompt):**
+     ```cmd
+     env_name\Scripts\activate
+     ```
+   - **On Windows (PowerShell):**
+     ```powershell
+     .\env_name\Scripts\Activate.ps1
+     ```
+
+4. **Install dependencies within the environment:**
+   ```bash
+   pip install <package_name>
+   ```
+
+5. **Deactivate the virtual environment (when done):**
+   ```bash
+   deactivate
+   ```
