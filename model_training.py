@@ -7,6 +7,7 @@ from tensorflow.keras.models import Sequential, load_model # type: ignore
 from tensorflow.keras.layers import LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import EarlyStopping # type: ignore
 import joblib # type: ignore
+from indicators import calculate_risk_percentage
 
 def prepare_lstm_data(stock_data, time_steps=60):
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -61,7 +62,8 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     predicted_price = scaler.inverse_transform([[predicted_scaled[0][0], 0, 0, 0, 0, 0]])[0][0]
 
      # Calculate threshold price
-    threshold_price = predicted_price * (1 - risk_percentage)
+    #threshold_price = predicted_price * (1 - risk_percentage)
+    threshold_price = predicted_price * (1 -  calculate_risk_percentage(stock_data))
 
     # Calculate accuracy metrics on recent data
     X_recent, y_recent, _ = prepare_lstm_data(stock_data.tail(days + time_steps), time_steps)
