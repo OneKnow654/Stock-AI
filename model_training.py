@@ -62,8 +62,9 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     predicted_price = scaler.inverse_transform([[predicted_scaled[0][0], 0, 0, 0, 0, 0]])[0][0]
 
      # Calculate threshold price
-    #threshold_price = predicted_price * (1 - risk_percentage)
-    threshold_price = predicted_price * (1 -  calculate_risk_percentage(stock_data))
+    risk_percentage = calculate_risk_percentage(stock_data)
+    threshold_price = predicted_price * (1 - risk_percentage)
+    
 
     # Calculate accuracy metrics on recent data
     X_recent, y_recent, _ = prepare_lstm_data(stock_data.tail(days + time_steps), time_steps)
@@ -75,7 +76,7 @@ def predict_closing_price_with_accuracy(model, stock_data, scaler, time_steps=60
     mae = mean_absolute_error(y_recent, y_pred_recent)
     mape = np.mean(np.abs((y_recent - y_pred_recent) / y_recent)) * 100
 
-    return predicted_price, threshold_price,mse, mae, mape
+    return predicted_price, threshold_price,mse, mae, mape,risk_percentage
 
 
 def load_model_and_scaler(ticker, timeframe, stock_data=None):

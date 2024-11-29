@@ -101,11 +101,12 @@ def predict():
         model, scaler = load_model_and_scaler(timeframe)
 
     # Predict closing price and calculate accuracy
-    predicted_price, threshold_price,mse, mae, mape = predict_closing_price_with_accuracy(model, stock_data_with_indicators, scaler, risk_percentage=risk_percentage)
+    predicted_price, threshold_price,mse, mae, mape,riskPerc = predict_closing_price_with_accuracy(model, stock_data_with_indicators, scaler, risk_percentage=risk_percentage)
 
     return jsonify({
         "predicted_closing_price": round(predicted_price,2),
         "threshold_price": round(threshold_price,2),
+        "risk percentage ": (riskPerc*100),
         "mean_squared_error": round(mse,2),
         "mean_absolute_error": round(mae,2),
         "mean_absolute_percentage_error": round(mape,3)
