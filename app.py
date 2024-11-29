@@ -106,7 +106,7 @@ def predict():
     return jsonify({
         "predicted_closing_price": round(predicted_price,2),
         "threshold_price": round(threshold_price,2),
-        "risk percentage ": (riskPerc*100),
+        "risk_percentage": round(riskPerc,2)*100,
         "mean_squared_error": round(mse,2),
         "mean_absolute_error": round(mae,2),
         "mean_absolute_percentage_error": round(mape,3)
