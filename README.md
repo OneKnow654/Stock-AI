@@ -3,6 +3,18 @@
 
 ---
 
+| New Model are aviable in the test1 
+| With pre trained model for it , check that out
+
+to run the code change dir
+```cmd
+cd Stock-Ai/test1
+python app.py
+
+```
+
+---
+
 In stock price prediction, **short-term**, **mid-term**, and **long-term** refer to different time horizons over which predictions are made, and each has a specific range based on typical trading and investing strategies:
 
 ### 1. **Short-Term** (Days to 1 Week)
