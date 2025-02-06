@@ -16,4 +16,8 @@ Thumbs.db
 build/
 dist/
 Old_backup/
+Old_backup/testing/
 myenv/
+models/
+newModel/
+models/*/*

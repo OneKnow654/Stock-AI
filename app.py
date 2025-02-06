@@ -112,6 +112,14 @@ def predict():
         "mean_absolute_percentage_error": round(mape,3)
     })
 
+@app.route('/history', methods=['GET'])
+def get_history():
+    # Mock data; replace with database query
+    history = [
+        {"ticker": "AAPL", "predicted_price": 150.5, "date": "2025-01-01", "timeframe": "short-term"},
+        {"ticker": "GOOGL", "predicted_price": 2800.75, "date": "2025-01-02", "timeframe": "mid-term"},
+    ]
+    return jsonify(history)
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
