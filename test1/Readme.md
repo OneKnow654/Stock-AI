@@ -5,3 +5,5 @@ Random Forest
 XGBoost 
 LSTM
 
+| note : if you want the learn how the model are working
+| the look in to this file train.py , model_training.py, predict.py
